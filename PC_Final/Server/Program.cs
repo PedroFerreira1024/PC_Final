@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Tracker
 {
@@ -207,51 +208,142 @@ namespace Tracker
         /// <summary>
         /// TCP port number in use.
         /// </summary>
+        
         private readonly int portNumber;
+        private readonly int maxConnections = Environment.ProcessorCount;
+        private static volatile int countBegins;
+        private MyLogger log;
+        private TcpListener srv;
+        private static volatile int activeConnections;
+        private static volatile bool shutdownInProgress;
+        private static ManualResetEventSlim serverIdle = new ManualResetEventSlim(false);
+        
 
         /// <summary> Initiates a tracking server instance.</summary>
         /// <param name="_portNumber"> The TCP port number to be used.</param>
-        public Listener(int _portNumber) { portNumber = _portNumber; }
+        public Listener(int _portNumber) {
+            maxConnections = Environment.ProcessorCount;
+            portNumber = _portNumber; 
+        }
 
         /// <summary>
         ///	Server's main loop implementation.
         /// </summary>
         /// <param name="log"> The Logger instance to be used.</param>
-        public void Run(MyLogger log)
+        public void Run(MyLogger logger)
         {
-            Console.WriteLine("@@ Listener Running @@");
-            TcpListener srv = null;
+            log = logger;
+            
             try
             {
                 srv = new TcpListener(IPAddress.Loopback, portNumber);
                 srv.Start();
-                Console.WriteLine("@@ Listener Started @@");
-                while (true)
+              
+                //do
+                //{
+                for (int i = 0; i < maxConnections; ++i)
                 {
-                    log.LogMessage("Listener - Waiting for connection requests.");
-                    Console.WriteLine("@@ Listener Wainting @@");
-                    using (TcpClient socket = srv.AcceptTcpClient())
-                    {
-                        Console.WriteLine("@@ Listener Accepted Client @@");
-                        socket.LingerState = new LingerOption(true, 10);
-                        log.LogMessage(String.Format("Listener - Connection established with {0}.",
-                            socket.Client.RemoteEndPoint));
-                        // Instantiating protocol handler and associate it to the current TCP connection
-                        Handler protocolHandler = new Handler(socket.GetStream(), log);
-                        // Synchronously process requests made through de current TCP connection
-                        protocolHandler.Run();
-                    }
-
-                    Program.ShowInfo(Store.Instance);
+                    srv.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), srv);
+                }
+                log.LogMessage("Listener - Waiting for connection requests.");
+                Console.Read();
+                shutdownInProgress = true;
+                Thread.MemoryBarrier();			// Prevent release/acquire hazard!
+                if (activeConnections > 0)
+                {
+                    serverIdle.Wait();
                 }
             }
             finally
             {
                 log.LogMessage("Listener - Ending.");
                 srv.Stop();
+                shutdownInProgress = true;
+                Thread.MemoryBarrier();			// Prevent release/acquire hazard!
+                if (activeConnections > 0)
+                {
+                    serverIdle.Wait();
+                }
             }
         }
 
+        public void AcceptClient(IAsyncResult ar)
+        {
+            Console.WriteLine("@@ ======> {0} with {1} <====== @@",Interlocked.Increment(ref countBegins),activeConnections);
+
+            TcpClient conn = null;
+
+            try
+            {
+                conn = srv.EndAcceptTcpClient(ar);
+
+                //
+                // Increment the number of active connections and, if the we are below
+                // of maximum allowed, accept a new connection.
+                //
+
+        #pragma warning disable 420
+
+                int c = Interlocked.Increment(ref activeConnections);
+                if (!shutdownInProgress && c < maxConnections)
+                {
+                    srv.BeginAcceptTcpClient(AcceptClient, srv);
+                }
+
+                //
+                // Process the previously accepted connection.
+                //
+
+                ProcessConnection(conn);
+
+                //
+                // Decrement the number of active connections. If a shut down
+                // isn't in progress and if the number of active connections
+                // is equals to the maximum allowed, accept a new connection.
+                // Otherwise, if the number of active connections drops to
+                // zero and the shut down was initiated, set the server idle
+                // event.
+                //
+
+                c = Interlocked.Decrement(ref activeConnections);
+
+        #pragma warning restore 420
+                if (!shutdownInProgress && c == maxConnections - 1)
+                {
+                    srv.BeginAcceptTcpClient(AcceptClient, srv);
+                }
+                else if (shutdownInProgress && c == 0)
+                {
+                    serverIdle.Set();
+                }
+            }
+            catch (SocketException sockex)
+            {
+                Console.WriteLine("***socket exception: {0}", sockex.Message);
+            }
+            catch (ObjectDisposedException)
+            {
+                //
+                // This exception happens when th listener socket is closed.
+                // So, we just ignore it!
+                //
+            }
+
+            //Program.ShowInfo(Store.Instance);
+        }
+
+        public void ProcessConnection(TcpClient client)
+        {
+            client.ReceiveTimeout = 1500;
+            client.LingerState = new LingerOption(true, 10);
+            log.LogMessage(String.Format("Listener - Connection established with {0}.",
+                client.Client.RemoteEndPoint));
+
+            // Instantiating protocol handler and associate it to the current TCP connection
+            Handler protocolHandler = new Handler(client.GetStream(), log);
+            // Synchronously process requests made through de current TCP connection
+            protocolHandler.Run();
+        }
     }
 
     class Program

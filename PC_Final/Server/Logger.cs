@@ -72,32 +72,40 @@ namespace Tracker
 
         public void writerFunc(Object obj)
         {
-            lock (this)
-            {
+            LinkedList<String> messages;
+            
                 while (true)
                 {
-                    foreach (String currentMsg in msgList)
+                    lock (this)
+                    {
+                        messages = msgList;
+                        msgList = new LinkedList<String>();
+                    }
+
+                    foreach (String currentMsg in messages)
                     {
                         writer.WriteLine(currentMsg);
                     }
-                
-                    if (stopped)
-                        return;
-                    try
-                    {
-                        Monitor.Wait(this);
-                    }
-                    catch (ThreadInterruptedException)
+                    
+                    lock (this)
                     {
                         if (stopped)
-                        {
-                            //Não será necessário regenerar uma notificação que possa ficar perdida
-                            // pois não deverá haver mais do que uma thread com esta função
-                            Thread.CurrentThread.Interrupt();
                             return;
+                        try
+                        {
+                            Monitor.Wait(this);
+                        }
+                        catch (ThreadInterruptedException)
+                        {
+                            if (stopped)
+                            {
+                                //Não será necessário regenerar uma notificação que possa ficar perdida
+                                // pois não deverá haver mais do que uma thread com esta função
+                                Thread.CurrentThread.Interrupt();
+                                return;
+                            }
                         }
                     }
-                }
             }
         }
 

@@ -114,8 +114,10 @@ namespace TestClient
 
         static void Main()
         {
+            Console.Read();
             //Register(new[] { "xpto", "ypto", "zpto" }, "192.1.1.1", 5555);
-            Register(new[] { "xpto", "ypto" }, "192.1.1.2", 5555);
+            for (int i = 0; i<5 ;++i )
+                Register(new[] { "xpto", "ypto" }, "192.1.1.2", 5555);
             //Register(new[] { "xpto" }, "192.1.1.3", 5555);
 
             //Console.WriteLine("List files:");
