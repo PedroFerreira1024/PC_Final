@@ -12,12 +12,12 @@ using System.Net;
 
 namespace TestClient
 {
-    class Program
+    public class Client
     {
         private const int PORT = 8888;
         private const int TIMEOUT=1000;
 
-        private static void Register(IEnumerable<string> files, string adress, ushort port)
+        public static void Register(IEnumerable<string> files, string adress, ushort port)
         {
             using (TcpClient client = new TcpClient())
             {
@@ -52,7 +52,7 @@ namespace TestClient
             }
         }
 
-        private static void Unregister(string file, string adress, ushort port)
+        public static void Unregister(string file, string adress, ushort port)
         {
             using (TcpClient client = new TcpClient())
             {
@@ -84,7 +84,7 @@ namespace TestClient
             }
         }
 
-        private static void ListFiles()
+        public static void ListFiles()
         {
             using (TcpClient socket = new TcpClient())
             {
@@ -122,7 +122,7 @@ namespace TestClient
             }
         }
 
-        private static void ListLocations(string fileName)
+        public static void ListLocations(string fileName)
         {
             
             using (TcpClient socket = new TcpClient())
@@ -168,7 +168,7 @@ namespace TestClient
         static void Main()
         {
             Console.Read();
-            Register(new[] { "xpto", "ypto", "zpto" }, "192.1.1.1", 5555);    
+            Register(new[] { "xpto", "ypto", "zpto" }, "192.1.1.1", 5555);
             Register(new[] { "xpto", "ypto" }, "192.1.1.2", 5555);
             Register(new[] { "xpto" }, "192.1.1.3", 5555);
 
