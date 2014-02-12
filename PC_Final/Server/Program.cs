@@ -158,8 +158,13 @@ namespace Tracker
         /// </summary>
         /// <param name="connection">The TCP connection to be used.</param>
         /// <param name="log">the Logger instance to be used.</param>
+        /// 
+
+        private readonly Stream connectionAux;
+
         public Handler(Stream connection, MyLogger log)
         {
+            connectionAux = connection;
             this.log = log;
             output = new StreamWriter(connection);
             input = new StreamReader(connection);
@@ -241,18 +246,12 @@ namespace Tracker
               
                 //do
                 //{
-                for (int i = 0; i < maxConnections; ++i)
-                {
+                
                     srv.BeginAcceptTcpClient(new AsyncCallback(AcceptClient), srv);
-                }
+                
                 log.LogMessage("Listener - Waiting for connection requests.");
                 Console.Read();
-                shutdownInProgress = true;
-                Thread.MemoryBarrier();			// Prevent release/acquire hazard!
-                if (activeConnections > 0)
-                {
-                    serverIdle.Wait();
-                }
+                
             }
             finally
             {
@@ -329,12 +328,12 @@ namespace Tracker
                 //
             }
 
-            //Program.ShowInfo(Store.Instance);
+            
         }
 
         public void ProcessConnection(TcpClient client)
         {
-            client.ReceiveTimeout = 1500;
+            
             client.LingerState = new LingerOption(true, 10);
             log.LogMessage(String.Format("Listener - Connection established with {0}.",
                 client.Client.RemoteEndPoint));
@@ -343,6 +342,7 @@ namespace Tracker
             Handler protocolHandler = new Handler(client.GetStream(), log);
             // Synchronously process requests made through de current TCP connection
             protocolHandler.Run();
+            //Program.ShowInfo(Store.Instance);
         }
     }
 
