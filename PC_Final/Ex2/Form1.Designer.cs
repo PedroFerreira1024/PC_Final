@@ -50,20 +50,21 @@
             this.Register.UseVisualStyleBackColor = true;
             this.Register.Click += new System.EventHandler(this.Register_Click);
             // 
-            // textBox1
+            // showResultBox
             // 
-            this.showResultBox.Location = new System.Drawing.Point(199, 39);
+            this.showResultBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.showResultBox.Location = new System.Drawing.Point(194, 39);
             this.showResultBox.Multiline = true;
-            this.showResultBox.Name = "textBox1";
+            this.showResultBox.Name = "showResultBox";
             this.showResultBox.ReadOnly = true;
-            this.showResultBox.Size = new System.Drawing.Size(230, 309);
+            this.showResultBox.Size = new System.Drawing.Size(261, 410);
             this.showResultBox.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(205, 21);
+            this.label1.Location = new System.Drawing.Point(241, 21);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 15);
             this.label1.TabIndex = 2;
@@ -127,7 +128,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(441, 360);
+            this.ClientSize = new System.Drawing.Size(467, 461);
             this.Controls.Add(this.locationToList);
             this.Controls.Add(this.unRegTextBox);
             this.Controls.Add(this.regTextBox);

@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
@@ -84,8 +78,9 @@ namespace TestClient
             }
         }
 
-        public static void ListFiles()
+        public static List<String> ListFiles()
         {
+            var list = new List<String>();
             using (TcpClient socket = new TcpClient())
             {
                 StreamWriter output = null;
@@ -106,8 +101,10 @@ namespace TestClient
                     // Read response
                     string line;
                     StreamReader input = new StreamReader(socket.GetStream());
+                    
                     while ((line = input.ReadLine()) != null && line != string.Empty)
-                        Console.WriteLine(line);
+                        list.Add(line);
+                    return list;
                 }
                 catch(IOException)
                 {
@@ -119,12 +116,13 @@ namespace TestClient
                         output.Close();
                     socket.Close();
                 }
+                return list;
             }
         }
 
-        public static void ListLocations(string fileName)
+        public static List<String> ListLocations(string fileName)
         {
-            
+            var list = new List<String>();
             using (TcpClient socket = new TcpClient())
             {
                 StreamWriter output = null;
@@ -148,8 +146,8 @@ namespace TestClient
                     string line;
                     StreamReader input = new StreamReader(socket.GetStream());
                     while ((line = input.ReadLine()) != null && line != string.Empty)
-                        Console.WriteLine(line);
-
+                        list.Add(line);
+                    return list;
                 }
                 catch (IOException)
                 {
@@ -161,6 +159,7 @@ namespace TestClient
                         output.Close();
                     socket.Close();
                 }
+                return list;
             }
         }
 
