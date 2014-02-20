@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 
@@ -9,26 +10,39 @@ namespace Ex3
 {
     public class Program
     {
+        public class SearchObj
+        {
+            public volatile int countTotal;
+            public volatile int countWithExtension;
+            public List<String> filesSearched;
 
-        private const int BUFFER_SIZE = 1024;
+            public SearchObj()
+            {
+                filesSearched = new List<String>();
+            }
+        }
 
-        private static void searchAndListFiles(String rootPath, String extension, String toLookFor)
+        public static Task<SearchObj> searchAndListFiles(String rootPath, String extension, String toLookFor)
         {
             DirectoryInfo root = new DirectoryInfo(rootPath);
 
+            var rootTasks = new List<Task<SearchObj>>();
+
             foreach(var dir in root.EnumerateDirectories())
             {
-                Task.Factory.StartNew(() =>
-                {
-                    searchAndListFiles(dir.Name, extension, toLookFor);
-                });
+                rootTasks.Add(searchAndListFiles(rootPath + "\\" + dir.Name, extension, toLookFor));
             }
 
+            var tasks = new List<Task<SearchObj>>();
+            var obj = new SearchObj();
             foreach(var file in root.EnumerateFiles())
             {
-                if(file.Extension.Equals(extension))
+                Interlocked.Increment(ref obj.countTotal);
+                if (file.Extension.Equals(extension))
                 {
-                    Task.Factory.StartNew(() =>
+                    Interlocked.Increment(ref obj.countWithExtension);
+
+                    tasks.Add(Task.Factory.StartNew<SearchObj>(() =>
                     {
                         using (FileStream stream = file.OpenRead())
                         {
@@ -36,25 +50,35 @@ namespace Ex3
                             UTF8Encoding temp = new UTF8Encoding(true);
                             while (stream.Read(buff, 0, buff.Length) > 0)
                             {
-                                if (buff.ToString().Contains("tolookFor"))
-                                    return;//==
+                                if (temp.GetString(buff).Contains(toLookFor))
+                                    lock (obj)
+                                    {
+                                        obj.filesSearched.Add(file.FullName);
+                                    }
                             }
+                            return obj;
                         }
-                    });
+                    }));
                 }
             }
-        }
 
-        public void checkIfContainsWord(object state)
-        {
-            
+            return Task.WhenAll(rootTasks).ContinueWith<SearchObj>((x) => {
+                
+                foreach(SearchObj i in x.Result)
+                {
+                    obj.countTotal += i.countTotal;
+                    obj.countWithExtension += i.countWithExtension;
+                    obj.filesSearched.AddRange(i.filesSearched);
+                }
+                return obj;
+            });
         }
 
 
         public static void Main(string[] args)
         {
-            searchAndListFiles(@"",".rtf","");
-
+            var xpto = searchAndListFiles(@"C:\Users\Pedro\Desktop\PC", ".txt", "PC").Result;
+            Console.Read();
         }
     }
 }
