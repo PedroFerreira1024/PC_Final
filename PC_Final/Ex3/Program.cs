@@ -68,7 +68,6 @@ namespace Ex3
                             return obj;
                         }
                     },token));
-                    
                 }
             }
 
