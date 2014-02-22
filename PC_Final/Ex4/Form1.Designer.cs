@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.ProgressTextBox = new System.Windows.Forms.TextBox();
+            this.SearchTextBox = new System.Windows.Forms.TextBox();
+            this.WordTextBox = new System.Windows.Forms.TextBox();
+            this.ExtensionTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.Search = new System.Windows.Forms.Button();
@@ -40,32 +40,32 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 85);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(708, 315);
-            this.textBox1.TabIndex = 0;
+            this.ProgressTextBox.Location = new System.Drawing.Point(12, 85);
+            this.ProgressTextBox.Multiline = true;
+            this.ProgressTextBox.Name = "textBox1";
+            this.ProgressTextBox.Size = new System.Drawing.Size(708, 315);
+            this.ProgressTextBox.TabIndex = 0;
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(196, 59);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(524, 20);
-            this.textBox2.TabIndex = 1;
+            this.SearchTextBox.Location = new System.Drawing.Point(196, 59);
+            this.SearchTextBox.Name = "textBox2";
+            this.SearchTextBox.Size = new System.Drawing.Size(524, 20);
+            this.SearchTextBox.TabIndex = 1;
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(249, 24);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(170, 20);
-            this.textBox3.TabIndex = 2;
+            this.WordTextBox.Location = new System.Drawing.Point(249, 24);
+            this.WordTextBox.Name = "textBox3";
+            this.WordTextBox.Size = new System.Drawing.Size(170, 20);
+            this.WordTextBox.TabIndex = 2;
             // 
             // textBox4
             // 
-            this.textBox4.Location = new System.Drawing.Point(550, 24);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(104, 20);
-            this.textBox4.TabIndex = 3;
+            this.ExtensionTextBox.Location = new System.Drawing.Point(550, 24);
+            this.ExtensionTextBox.Name = "textBox4";
+            this.ExtensionTextBox.Size = new System.Drawing.Size(104, 20);
+            this.ExtensionTextBox.TabIndex = 3;
             // 
             // label1
             // 
@@ -115,10 +115,10 @@
             this.Controls.Add(this.Search);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.ExtensionTextBox);
+            this.Controls.Add(this.WordTextBox);
+            this.Controls.Add(this.SearchTextBox);
+            this.Controls.Add(this.ProgressTextBox);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -128,10 +128,10 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox ProgressTextBox;
+        private System.Windows.Forms.TextBox SearchTextBox;
+        private System.Windows.Forms.TextBox WordTextBox;
+        private System.Windows.Forms.TextBox ExtensionTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button Search;
